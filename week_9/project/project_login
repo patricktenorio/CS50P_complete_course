@@ -1,0 +1,194 @@
+#pip install tk
+from tkinter import *
+from tkinter import filedialog
+import tkinter as tk
+from tkinter import messagebox
+
+#pip install Pillow
+from PIL import Image, ImageTk
+
+# pip install os-win
+import os
+
+#pip install stegano
+from stegano import lsb
+
+##########-------------------------------------------------------------
+
+# LOGIN FORM ----------------------------------------------------------
+login_form = Tk()
+login_form.title("Login Form")
+login_form.geometry("350x400+300+200")
+login_form.configure(bg="#fff791")
+login_form.resizable(False, False)
+
+# Login form frame settings
+frame = Frame(login_form, width=350, height=350, bg="#fff791")
+frame.place(x=0, y=50)
+
+# Login form favicon
+login_icon = PhotoImage(file="icons/favicon.png")
+login_form.iconphoto(False, login_icon)
+
+# Login form logo
+logo = PhotoImage(file="icons/logo.png")
+Label(login_form, image=logo, bg="#fff791").place(x=135, y=10)
+
+##########-------------------------------------------------------------
+
+def main():
+    # TKINTER GUI APP -------------------------------------------------
+    root = Tk()
+    root.title(" Message Masker")
+    root.geometry("700x730+150+180")
+    root.resizable(False, False)
+    root.configure(bg="#fff791")
+
+    ## FUNC SHOW IMAGE ------------------------------------------------
+    def open_image():
+        global filename
+        filename = filedialog.askopenfilename(
+            initialdir = os.getcwd(),
+            title = 'Select Image File',
+            filetype = (("PNG File", "*.png"), ("JPG File", "*.jpg"), ("All File", "*.txt")))
+
+        img = Image.open(filename)
+        img = ImageTk.PhotoImage(img)
+        lbl.configure(image=img, width=585, height=395)
+        lbl.image = img
+        my_message.delete(1.0, END)
+
+    ## FUNC SAVE ------------------------------------------------------
+    def Save():
+        global secret
+        secret_message = my_message.get(1.0, END)
+
+        try:
+            if secret_message == "\n":
+                messagebox.showerror("Message box", "No message detected!\nPlease enter a message to continue.")
+            else:
+                secret = lsb.hide(str(filename), secret_message)
+                messagebox.showinfo("Message box", 'Your message was successfuly added!\n\nA new image with "(!)" in it filename was successfuly saved.\nYou can replace the image name anytime.')
+                saved_filename = filename.split(".")
+                secret.save(f"{saved_filename[0]}(!).png")
+                my_message.delete(1.0, END)
+        except NameError:
+            messagebox.showerror("Message box", "No image detected!\nPlease add an image.")
+
+    ## FUNC SHOW ------------------------------------------------------
+    def Show():
+        try:
+            show_message = lsb.reveal(filename)
+            my_message.delete(1.0, END)
+            if show_message == None:
+                messagebox.showwarning("Message box", "This image has no secret message.")
+            else:
+                my_message.insert(END, show_message)
+                messagebox.showinfo("Message box", 'Secret message reveled!')
+        except NameError:
+            messagebox.showerror("Message box", "No image detected!\nPlease add an image.")
+
+    ## FUNC CLEAR -----------------------------------------------------
+    def Clear():
+        my_message.delete(1.0, END)
+
+    ## ICON -----------------------------------------------------------
+    image_icon = PhotoImage(file="icons/favicon.png")
+    root.iconphoto(False, image_icon)
+
+    ## TITLE ----------------------------------------------------------
+    Label(root, text="SECRET MESSAGE", bg="#fff791", fg="#21201d", font="unispace 20 bold").place(x=50, y=40)
+
+    ## IMAGE FRAME ----------------------------------------------------
+    img_frame = Canvas(root, bd=3, bg="#21201d", width=590, height=400, relief=GROOVE)
+    img_frame.place(x=50, y=80)
+
+    lbl = Label(img_frame, bg="black")
+    lbl.place(x=5, y=5)
+
+    ## TEXT BOX -------------------------------------------------------
+    Label(text="Enter your message below:", bg="#fff791", fg="#21201d", font="unisoft 9").place(x=50, y=530)
+
+    text_box = Frame(root, bd=3, width=600, height=100, bg="#f2f2f2", relief=GROOVE)
+    text_box.place(x=50, y=550)
+
+    my_message = Text(text_box, font="Roboto 15", bg="#f2f2f2", fg="black", relief=GROOVE, wrap=WORD)
+    my_message.place(x=0, y=0, width=580, height=95)
+
+    scroll_bar = Scrollbar(text_box)
+    scroll_bar.place(x=576, y=0, height=93)
+
+    scroll_bar.configure(command=my_message.yview)
+    my_message.configure(yscrollcommand=scroll_bar.set)
+
+    ## OPEN IMG BUTTON ------------------------------------------------
+    Button(
+        text="Open Image", width=11, height=1, bg="#3cd5ea", font="unispace 8", command=open_image).place(x=560, y=55)
+
+    ## HIDE MSG BTN ---------------------------------------------------
+    Button(
+        text="Hide\nMessage", width=9, height=2, bg="#fd678a", font="unispace 8", command=Save).place(x=50, y=655)
+
+    ## SHOW MSG BTN ---------------------------------------------------
+    Button(
+        text="Show\nMessage", width=9, height=2, bg="#09ffa9", font="unispace 8", command=Show).place(x=130, y=655)
+
+    ## CLEAR BUTTON ---------------------------------------------------
+    Button(
+        text="Clear\nTextbox", width=9, height=2, bg="#3cd5ea", font="unispace 8", command=Clear).place(x=210, y=655)
+
+##########-------------------------------------------------------------
+
+## LOGIN FUNC ---------------------------------------------------------
+def signin():
+    username = user_name.get()
+    password = pass_code.get()
+
+    # Credentials
+    if username == 'finalproject' and password == '12345678':
+        login_form.destroy()
+        main()
+
+    elif username != '1' or password !='1':
+        messagebox.showwarning("Warning", "Invalid username and password")
+        user_name.delete(0, END)
+        pass_code.delete(0, END)
+
+## USERNAME INPUT -----------------------------------------------------
+
+# Username Label
+user_lbl = Label(frame, text="Username:", fg='black', bg='#fff791', font=('Microsoft YaHei UI Light', 11))
+user_lbl.place(x=52, y=75)
+
+# Username Textfield
+user_name = Entry(frame, width=30, fg="black", border=2, font=('Microsoft YaHei UI Light', 11))
+user_name.place(x=52, y=100)
+
+## PASSWORD INPUT -----------------------------------------------------
+
+# Password Label
+pass_lbl = Label(frame, text="Password:", fg='black', bg='#fff791', font=('Microsoft YaHei UI Light', 11))
+pass_lbl.place(x=52, y=135)
+
+# Password Textfield
+pass_code = Entry(frame, width=30, fg="black", border=2, font=('Microsoft YaHei UI Light', 11), show="*")
+pass_code.place(x=52, y=160)
+
+##########-------------------------------------------------------------
+
+# Login Button
+Button(frame, width=30, pady=7, text='Login', bg='#8bb845', fg='#fff', border=1, font=('Microsoft YaHei UI Light', 10), command=signin).place(x=50, y=215)
+
+# Footer
+label = Label(frame, text="This app is for selected users only.", fg='black', bg='#fff791', font=('Microsoft YaHei UI Light', 9))
+label.place(x=78, y=290)
+
+# Contact Button
+contact_btn = Button(frame, width=11, text='Contact admin', font=('Microsoft YaHei UI Light', 9, "underline"), border=0, bg='#fff791', cursor='hand2', fg='#57a1f8')
+contact_btn.place(x=130, y=310)
+
+##########-------------------------------------------------------------
+
+
+if __name__ == "__main__":
+    login_form.mainloop()

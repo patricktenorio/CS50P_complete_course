@@ -1,0 +1,6 @@
+## pip-installable libraries that this project requires
+
+# pip install tk
+# pip install Pillow
+# pip install os-win
+# pip install stegano
